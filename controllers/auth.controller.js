@@ -6,6 +6,7 @@ const validateUser = require("../validations/user.validation");
 const mongoose=require("mongoose")
 
 const registerUserController=async(req,res)=>{
+    // console.log(req.body)
     const session = await mongoose.startSession(); // Start a new session
     session.startTransaction(); // Start a transaction
     try{
