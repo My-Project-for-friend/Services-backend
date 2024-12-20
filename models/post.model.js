@@ -19,6 +19,12 @@ const postSchema = new mongoose.Schema(
         },
       },
     ],
+    title:{
+      type:String
+    },
+    description:{
+      type:String,
+    },
     typeOfService:[{
         type:String,
         enum:['Call Girls','Transsexual','Massage','Adult Meetings','Male Escorts']

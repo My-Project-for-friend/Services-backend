@@ -2,8 +2,8 @@ const userModel = require("../models/user.model");
 const { missingFieldError, conflictError, internalServerError, notFoundError, unauthorizedError } = require("../utils/error.utils");
 const { generateToken } = require("../utils/jwt.utils");
 const executedSuccess = require("../utils/success.utils");
-const validateUser = require("../validations/user.validation");
-const mongoose=require("mongoose")
+const mongoose=require("mongoose");
+const { userValidationSchema } = require("../validations/user.validation");
 
 const registerUserController=async(req,res)=>{
     // console.log(req.body)
@@ -11,10 +11,11 @@ const registerUserController=async(req,res)=>{
     session.startTransaction(); // Start a transaction
     try{
         console.log(req.body)
-        const {error,value}=validateUser(req.body);
-        if(error){
+        const result=userValidationSchema.safeParse(req.body);
+        if(result.error){
             return missingFieldError(res,error);
         }
+        const value=result.data;
         const {email}=value;
         const user=await userModel.findOne({email});
         if(user){

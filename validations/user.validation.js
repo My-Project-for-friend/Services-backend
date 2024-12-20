@@ -1,28 +1,37 @@
-const Joi = require("joi");
+const { z } = require("zod");
 
-// Joi Validation Schema for User Input
-const validateUser = (data) => {
-  const schema = Joi.object({
-    name: Joi.string().min(3).max(50).required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string()
-      .pattern(/^[0-9]+$/)
-      .length(10)
-      .messages({
-        "string.pattern.base": "Phone number must contain only digits.",
-        "string.length": "Phone number must be exactly 10 digits.",
-      }),
-    password: Joi.string()
-      .min(6)
-      .max(20)
-      .required()
-      .messages({
-        "string.min": "Password must be at least 6 characters.",
-        "string.max": "Password must be at most 20 characters.",
-      }),
-  });
+// Define Zod schema
+const userValidationSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: "Name is required" })
+    .max(100, { message: "Name must not exceed 100 characters" }),
+  email: z
+    .string()
+    .email({ message: "Invalid email format" }),
+  phone: z
+    .optional(
+      z
+        .string()
+        .min(10, { message: "Phone number must be at least 10 characters long" })
+        .max(15, { message: "Phone number must not exceed 15 characters" })
+    ),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long" }),
+});
 
-  return schema.validate(data, { abortEarly: false }); // Return all errors
+// Usage example
+const validateUserData = (data) => {
+  try {
+    userValidationSchema.parse(data);
+    return { isValid: true, errors: null };
+  } catch (error) {
+    return { isValid: false, errors: error.errors };
+  }
 };
 
-module.exports = validateUser;
+module.exports = {
+  userValidationSchema,
+  validateUserData,
+};
