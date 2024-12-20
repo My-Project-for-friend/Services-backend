@@ -3,7 +3,7 @@ const { verifyToken } = require("../utils/jwt.utils");
 
 const authMiddleware = async (req, res, next) => {
     try {
-        const { authorization } = req.headers;
+        const authorization = req.headers["authorization"] || req.headers["Authorization"];
         if (!authorization) {
             return res.status(401).json({
                 message: "Authorization header missing",

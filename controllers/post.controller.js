@@ -1,8 +1,10 @@
-const { createPostHandler, updatePostHandler, getPostHandler, deletePostHandler } = require("../handler/post.handler")
+const { createPostHandler, updatePostHandler, getPostHandler, deletePostHandler } = require("../handler/post.handler");
 
  
 
 const createPostController=async(req,res)=>{
+    console.dir(req.body,{depth:null});
+    console.dir(req.files,{depth:null});
     try{
         const {success,data}=await createPostHandler(req);
         if(!success){
