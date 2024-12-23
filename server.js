@@ -13,7 +13,8 @@ connectDb();
 
 const app=express();
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); // Increase limit for JSON payloads
+app.use(express.urlencoded({ limit: "10mb", extended: true })); // For form-encoded data
 
 // Middleware to parse URL-encoded data (if needed)
 app.use(express.urlencoded({ extended: true }));

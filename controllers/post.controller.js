@@ -4,7 +4,7 @@ const { createPostHandler, updatePostHandler, getPostHandler, deletePostHandler 
 
 const createPostController=async(req,res)=>{
     console.dir(req.body,{depth:null});
-    console.dir(req.files,{depth:null});
+
     try{
         const {success,data}=await createPostHandler(req);
         if(!success){
@@ -32,6 +32,9 @@ const createPostController=async(req,res)=>{
     }
 }
 
+
+
+  
 
 const updatePostController=async(req,res)=>{
     try{
@@ -64,7 +67,7 @@ const updatePostController=async(req,res)=>{
 
  
 
-const getPostController=async(req)=>{
+const getPostController=async(req,res)=>{
     try{
         const {success,data}=await getPostHandler(req);
         if(!success){
@@ -79,6 +82,7 @@ const getPostController=async(req)=>{
                 message:"Error while fetching the data"
             })
         }
+        console.log(data);
         return res.status(200).json({
             success:true,
             message:"Data fetched successfully",

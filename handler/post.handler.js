@@ -4,48 +4,47 @@ const { postValidationSchema } = require("../validations/post.validation.js");
 
 
 const createPostHandler = async (req) => {
+  try {
+    console.log("post");
     const userId = req.user?._id;
-    const result = postValidationSchema.safeParse(req.body);
-  
+
     // Validate user existence
     if (!userId) {
-      throw new Error("UserId required");
+      throw new Error("UserId is required");
     }
-  
+
     // Validate request body using Zod schema
-    if (!result.success) {
-      const validationErrors = result.error.flatten().fieldErrors;
-      throw new Error(`Validation failed: ${JSON.stringify(validationErrors)}`);
-    }
-  
-    const { data } = result;
-  
-    // Handle uploaded files
-    const imageFiles = req.files; // Access uploaded files from Multer
-  
-    if (!imageFiles || imageFiles.length === 0) {
-      throw new Error("At least one image is required.");
-    }
-  
-    // Map uploaded files to include file paths or additional metadata
-    const uploadedImages = imageFiles.map((file) => ({
-      filename: file.filename,
-      path: file.path,
-    }));
-  
-    // Create the post with userId, text data, and image metadata
+    // const result = postValidationSchema.safeParse(req.body);
+
+    // if (!result.success) {
+    //   const validationErrors = result.error.flatten().fieldErrors;
+    //   console.log(`Validation failed: ${JSON.stringify(validationErrors)}`);
+    //   throw new Error(`Validation failed: ${JSON.stringify(validationErrors)}`);
+    // }
+
+    // const { data } = result;
+
+    // // Log to verify all fields (including images)
+    // console.log("Validated data:", data);
+
+    // Create the post with userId, text data, and optional image metadata
     const post = await postModel.create({
-      ...data,
+      ...req.body,
       userId,
-      images: uploadedImages, // Add images to the post
     });
-  
+
     if (!post) {
       return { success: false, data: null };
     }
-  
+
     return { success: true, data: post };
-  };
+  } catch (error) {
+    console.error("Error creating post:", error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+
   
 
   const updatePostHandler = async (req) => {
@@ -122,7 +121,7 @@ const createPostHandler = async (req) => {
  
 
 const getPostHandler = async (req) => {
-    const {id,city,state,ethnicity,nationality,breastType,hairType,bodyType,services,attentionTo,placeOfService} = req.query;
+    const {id,city,state,ethnicity,nationality,breastType,hairType,bodyType,services,attentionTo,placeOfService,all} = req.query;
     const userId = req.user?._id;
 
     // Ensure userId is present
@@ -130,8 +129,11 @@ const getPostHandler = async (req) => {
         throw new Error("User ID is required");
     }
     // Build match conditions dynamically
-    const matchConditions = { userId };
+    const matchConditions = {  };
     // Add filters for individual fields
+    if(all){
+      matchConditions.userId = userId;
+    }
     if (id) {
         if (mongoose.Types.ObjectId.isValid(id)) {
             matchConditions._id = new mongoose.Types.ObjectId(id);
@@ -181,28 +183,17 @@ const getPostHandler = async (req) => {
     }
     // Define pipeline
     const pipeline = [
-        { $match: matchConditions }, // Match the filters
-        {
-            $project: {
-                _id: 1,
-                city: 1,
-                state: 1,
-                ethnicity: 1,
-                nationality: 1,
-                breastType: 1,
-                hairType: 1,
-                bodyType: 1,
-                services: 1,
-                attentionTo: 1,
-                placeOfService: 1,
-                paymentMethods: 1,
-                perHourRate: 1,
-                phoneNo: 1,
-                createdAt: 1,
-                updatedAt: 1,
-            },
-        },
-    ];
+      { $match: matchConditions }, // Match the filters
+      // {
+      //     $project: {
+      //         "$$ROOT"// Place the entire document under the `document` field
+      //     },
+      // },
+      {
+          $sort: { createdAt: -1 }, // Sort by `createdAt` in descending order
+      },
+  ];
+  
     // Execute the pipeline
     const posts = await postModel.aggregate(pipeline);
     if (!posts || posts.length === 0) {

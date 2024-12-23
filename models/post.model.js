@@ -9,14 +9,9 @@ const postSchema = new mongoose.Schema(
     },
     images: [
       {
-        type: String,
-        validate: {
-          validator: function (v) {
-            // Ensure valid URL format if images are stored as URLs
-            return /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(v);
-          },
-          message: "Invalid image URL.",
-        },
+       originalname: { type: String },
+        base64: { type: String }, 
+        mimetype: { type: String }
       },
     ],
     title:{
@@ -24,6 +19,9 @@ const postSchema = new mongoose.Schema(
     },
     description:{
       type:String,
+    },
+    age:{
+      type:String
     },
     typeOfService:[{
         type:String,
@@ -36,9 +34,6 @@ const postSchema = new mongoose.Schema(
         type:String
     },
     ethnicity: {
-      type: String,
-    },
-    nationality: {
       type: String,
     },
     breastType: {

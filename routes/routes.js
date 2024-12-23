@@ -11,6 +11,8 @@ router.use("/auth",require('./authRoutes.js'));
 
 router.use("/post",authMiddleware,require("./post.routes.js"));
 
+router.use("/file",authMiddleware,require("./upload.routes.js"));
+
 
 
 
